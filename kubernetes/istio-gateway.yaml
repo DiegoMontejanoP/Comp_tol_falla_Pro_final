@@ -1,0 +1,53 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: calculator-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: calculator-virtual-service
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - calculator-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /calculator
+    rewrite:
+      uri: "/"
+    route:
+    - destination:
+        host: calculator-service
+        port:
+          number: 5000
+  - match:
+    - uri:
+        prefix: /simulator
+    rewrite:
+      uri: "/"
+    route:
+    - destination:
+        host: load-simulator-service
+        port:
+          number: 8080
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: gui-service
+        port:
+          number: 5001

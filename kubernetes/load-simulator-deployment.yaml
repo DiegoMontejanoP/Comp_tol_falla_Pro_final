@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: load-simulator-deployment
+  labels:
+    app: load-simulator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: load-simulator
+  template:
+    metadata:
+      labels:
+        app: load-simulator
+    spec:
+      containers:
+      - name: load-simulator
+        image: load-simulator-app:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
